@@ -1,0 +1,26 @@
+{
+  "name": "git-exam-practice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently npm:dev:client npm:dev:server",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HannaBergsbak/exam-practice-1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HannaBergsbak/exam-practice-1/issues"
+  },
+  "homepage": "https://github.com/HannaBergsbak/exam-practice-1#readme",
+  "devDependencies": {
+    "concurrently": "^7.1.0"
+  }
+}
