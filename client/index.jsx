@@ -14,11 +14,19 @@ function FrontPage() {
 }
 
 function ListMovies() {
-    return null;
+    return (
+        <div>
+            <h1>Movies in the db</h1>
+        </div>
+    );
 }
 
 function AddNewMovie() {
-    return null;
+    return (
+        <form>
+            <h1>Add new movie</h1>
+        </form>
+    );
 }
 
 function Application() {
@@ -26,8 +34,8 @@ function Application() {
         <BrowserRouter>
             <Routes>
                 <Route path={"/"} element={<FrontPage />} />
-                <Route path={"/"} element={<ListMovies />} />
-                <Route path={"/"} element={<AddNewMovie />} />
+                <Route path={"/movies"} element={<ListMovies />} />
+                <Route path={"/movies/new"} element={<AddNewMovie />} />
             </Routes>
         </BrowserRouter>
     );
