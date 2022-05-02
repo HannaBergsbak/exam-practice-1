@@ -6,13 +6,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "parcel watch index.html",
     "build": "npm install --include=dev && parcel build index.html"
-
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "parcel": "^2.5.0"
+    "parcel": "^2.5.0",
+    "querystring-es3": "^0.2.1",
+    "url": "^0.11.0"
   },
   "dependencies": {
     "@parcel/transformer-react-refresh-wrap": "^2.5.0",
