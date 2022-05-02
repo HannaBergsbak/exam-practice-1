@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "parcel watch index.html",
-    "build": "npm install --include=dev && parcel build index.html"
+    "build": "npm install --include=dev && npm run build:parcel",
+    "build:parcel": "parcel build index.html"
   },
   "keywords": [],
   "author": "",
