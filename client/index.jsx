@@ -4,13 +4,15 @@ import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 
 
 function FrontPage() {
-    return <div>
+    return (
+        <div>
         <h1>Movie db</h1>
         <ul>
             <li><Link to={"/movies"}>List movies</Link></li>
             <li><Link to={"/movies/new"}>Add movie</Link></li>
         </ul>
-    </div>;
+    </div>
+    );
 }
 
 function useLoading(loadingFunction) {
@@ -21,7 +23,7 @@ function useLoading(loadingFunction) {
     async function load(){
         try{
             setLoading(true);
-            setData(await loadingFunction);
+            setData(await loadingFunction());
         } catch (error) {
             setError(error);
         } finally {
@@ -52,7 +54,6 @@ function ListMovies() {
     if (loading){
         return <div>Loading..</div>;
     }
-
     if (error){
         return (
             <div>
