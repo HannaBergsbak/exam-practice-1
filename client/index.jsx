@@ -1,23 +1,49 @@
-import React, {useEffect, useState } from "react";
+import React, {useContext, useEffect, useState} from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
 
+const ProfileContext = React.createContext({
+    userinfo: undefined,
+});
+
 function FrontPage() {
+    const { userinfo } = useContext(ProfileContext);
+
+    async function handleLogout() {
+        await fetch("/api/login", { method: "delete" });
+        reload();
+    }
+
     return (
         <div>
-            <h1>Logging in</h1>
-            <ul>
-                <li><Link to={"/login"}>Log in</Link></li>
-                <li><Link to={"/profile"}>Profile</Link></li>
-            </ul>
+            <h1>Front Page</h1>
+            {!userinfo && (
+                <div>
+                    <Link to={"/login"}>Log in</Link>
+                </div>
+            )}
 
-            <h1>Movie db</h1>
-            <ul>
-                <li><Link to={"/movies"}>List movies</Link></li>
-                <li><Link to={"/movies/new"}>Add movie</Link></li>
-            </ul>
+            {userinfo && (
+                <div>
+                    <Link to={"/profile"}>Profile for {userinfo.name}</Link>
+                </div>
+            )}
+            {userinfo && (
+                <div>
+                    <Link to={"/movies"}>List movies</Link>
+                </div>
+            )}
+            {userinfo && (
+                <div>
+                    <Link to={"/movies/new"}>Add new movie</Link>
+                </div>
+            )}
+            {userinfo && (
+                <div>
+                    <button onClick={handleLogout}>Log out</button>
+                </div>
+            )}
         </div>
-
     );
 }
 
@@ -50,7 +76,9 @@ function useLoading(loadingFunction) {
         }
     }
 
-    useEffect(() => load(), []);
+    useEffect(() => {
+        load();
+        }, []);
     return { loading, error, data };
 }
 
@@ -117,87 +145,94 @@ function AddNewMovie() {
 }
 
 
-function LoginCallback() {
+function LoginCallback({ reload }) {
     const navigate = useNavigate();
-    useEffect(async () => {
-        const {access_token} = Object.fromEntries(
+    async function test() {
+        const { access_token } = Object.fromEntries(
             new URLSearchParams(window.location.hash.substring(1))
         );
-        console.log(access_token);
-
-        await fetch("/api/login", {
-            method: "POST",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify({access_token}),
+        const res = await fetch("/api/login", {
+            method: "post",
+            body: new URLSearchParams({ access_token }),
         });
-        navigate("/");
+        if (res.ok) {
+            reload();
+            navigate("/");
+        }
+    }
+    useEffect(() => {
+        test();
     });
     return <h1>Please wait</h1>;
 }
 
-
 function Profile() {
-    const { loading, error, data } = useLoading(async () => {
-        return await fetchJSON("/api/login");
-    });
+    const { userinfo } = useContext(ProfileContext);
 
-    if (loading){
-        return <div>Please wait..</div>
-    }
-    if (error){
-        return <div>Error: {error.toString()}</div>
-    }
     return (
-        <div>
+        <>
             <h1>
-                Profile for {data.name} ({data.email})
+                User profile: {userinfo.name} ({userinfo.email})
             </h1>
-            <div>
-                <img src={data.picture} alt={"Profile picture"}/>
-            </div>
-        </div>
+            {userinfo.picture && (
+                <img src={userinfo.picture} alt={userinfo.name + " profile picture"} />
+            )}
+        </>
     );
 }
 
 function Application() {
+    const [loading, setLoading] = useState(true);
+    const [login, setLogin] = useState();
+    useEffect(loadLoginInfo, []);
+
+    async function loadLoginInfo() {
+        setLoading(true);
+        setLogin(await fetchJSON("/api/login"));
+        setLoading(false);
+    }
+
+    useEffect(() => {
+        console.log({ login });
+    }, [login]);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path={"/"} element={<FrontPage />} />
-                <Route path={"/movies"} element={<ListMovies />} />
-                <Route path={"/movies/new"} element={<AddNewMovie />} />
-                <Route path={"/login"} element={<Login/>} />
-                <Route path={"/login/callback"} element={<LoginCallback/>} />
-                <Route path={"/profile"} element={<Profile/>} />
-            </Routes>
-        </BrowserRouter>
+        <ProfileContext.Provider value={login}>
+            <BrowserRouter>
+                <Routes>
+                    <Route path={"/"} element={<FrontPage reload={loadLoginInfo}/>} />
+                    <Route path={"/movies"} element={<ListMovies />} />
+                    <Route path={"/movies/new"} element={<AddNewMovie />} />
+                    <Route path={"/login"} element={<Login/>} />
+                    <Route path={"/login/callback"} element={<LoginCallback reload={loadLoginInfo}/>} />
+                    <Route path={"/profile"} element={<Profile/>} />
+                </Routes>
+            </BrowserRouter>
+        </ProfileContext.Provider>
     );
 }
 
 function Login() {
+    const { oauth_config } = useContext(ProfileContext);
     useEffect(async () => {
-        const {authorization_endpoint} = await fetchJSON(
-            "https://accounts.google.com/.well-known/openid-configuration"
-        );
-
-        const parameters = {
+        const { discovery_url, client_id, scope } = oauth_config;
+        const discoveryDocument = await fetchJSON(discovery_url);
+        const { authorization_endpoint } = discoveryDocument;
+        const params = {
             response_type: "token",
-            client_id: "677797491211-8egpen87auhal7pc5nv7mee5ri48rvfh.apps.googleusercontent.com",
-            scope: "email profile",
+            response_mode: "fragment",
+            scope,
+            client_id,
             redirect_uri: window.location.origin + "/login/callback",
         };
-
         window.location.href =
-            authorization_endpoint + "?" + new URLSearchParams(parameters);
+            authorization_endpoint + "?" + new URLSearchParams(params);
     }, []);
-
-    return (
-        <div>
-            <h1>Please wait</h1>
-        </div>
-        );
+    return <h1>Please wait</h1>;
 }
 
 /* JOHANNES SIN APPLICATION
