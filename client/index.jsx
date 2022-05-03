@@ -48,7 +48,7 @@ function MovieCard ({ movie: { title, year, poster }}) {
         return  (
             <>
             <h3>{title}</h3>
-            <img src={poster}/>
+            {poster && <img src={poster} width={100} alt={"Movie poster"}/>}
             <div>{year}</div>
             </>
         );
