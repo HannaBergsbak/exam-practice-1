@@ -6,7 +6,7 @@ const ProfileContext = React.createContext({
     userinfo: undefined,
 });
 
-function FrontPage() {
+function FrontPage({ reload }) {
     const { userinfo } = useContext(ProfileContext);
 
     async function handleLogout() {
