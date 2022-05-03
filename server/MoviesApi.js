@@ -13,6 +13,16 @@ export function MoviesApi(mongoDatabase){
                    $gte: 2000,
                     //greater than or equal query
                 },
+                /* REGEX
+                title: {
+                    $regex: ".*Train.*",
+                },
+                */
+                /* EQUALS
+                title: {
+                    $eq: "Example title",
+                },
+                */
             })
             .sort({
                 metacritic: -1,
