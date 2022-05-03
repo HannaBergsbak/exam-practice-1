@@ -58,10 +58,13 @@ app.delete("/api/login", (req, res) => {
 
 const mongoClient = new MongoClient(process.env.MONGODB_URL);
 mongoClient.connect().then(async () => {
-    console.log("Connected to mongoDB");
-    app.use("/api/movies", MoviesApi(mongoClient.db(process.env.MONGODB_DATABASE || "exam-practice")));
-    //const databases = await mongoClient.db().admin().listDatabases();
-    //console.log(databases);
+    console.log("connected to mongo db");
+    app.use(
+        "/api/movies",
+        MoviesApi(
+            mongoClient.db(process.env.MONGODB_DATABASE || "exam-practice")
+        )
+    );
 });
 
 app.use(express.static("../client/dist/"));

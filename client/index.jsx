@@ -47,19 +47,6 @@ function FrontPage({ reload }) {
     );
 }
 
-/* JOHANNES FRONT PAGE
-function FrontPage() {
-    return (
-        <div>
-            <h1>Front page</h1>
-            <ul>
-                <li><Link to={"/login"}>List movies</Link></li>
-                <li><Link to={"/profile"}>Add movie</Link></li>
-            </ul>
-        </div>
-    );
-}
-*/
 function useLoading(loadingFunction) {
     const [ loading, setLoading] = useState(true);
     const [ error, setError] = useState();
@@ -82,22 +69,19 @@ function useLoading(loadingFunction) {
     return { loading, error, data };
 }
 
-async function fetchJSON(url){
-    const res = await fetch(url);
-    if (!res.ok){
-        throw new Error(`Failed to load${res.status}: ${res.statusText}`);
+async function fetchJSON(url, options = {}) {
+    const res = await fetch(url, {
+        method: options.method || "get",
+        headers: options.json ? { "content-type": "application/json" } : {},
+        body: options.json && JSON.stringify(options.json),
+    });
+    if (!res.ok) {
+        throw new Error(`Failed ${res.status}: ${(await res).statusText}`);
     }
-    return await res.json();
-}
-/* Johannes sin fetchJSON
-async function fetchJSON(url){
-    const res = await fetch(url);
-    if (!res.ok){
-        throw new Error(`Failed to load${res.status}`);
+    if (res.status === 200) {
+        return await res.json();
     }
-    return await res.json();
 }
-*/
 
 function MovieCard ({ movie: { title, year, poster }}) {
         return  (
@@ -137,9 +121,39 @@ function ListMovies() {
 }
 
 function AddNewMovie() {
+    const [title, setTitle] = useState("");
+    const [plot, setPlot] = useState("");
+    const [year, setYear] = useState("");
+    const navigate = useNavigate();
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        await fetchJSON("/api/movies/new", {
+            method: "post",
+            json: { title, year, plot },
+        });
+        setTitle("");
+        setYear("");
+        setPlot("");
+        navigate("/");
+    }
+
     return (
-        <form>
-            <h1>Add new movie</h1>
+        <form onSubmit={handleSubmit}>
+            <h1>Add Movie</h1>
+            <div>
+                Title:
+                <input value={title} onChange={(e) => setTitle(e.target.value)} />
+            </div>
+            <div>
+                Year:
+                <input value={year} onChange={(e) => setYear(e.target.value)} />
+            </div>
+            <div>Plot:</div>
+            <div>
+                <textarea value={plot} onChange={(e) => setPlot(e.target.value)} />
+            </div>
+            <button>Submit</button>
         </form>
     );
 }
@@ -234,20 +248,5 @@ function Login() {
     }, []);
     return <h1>Please wait</h1>;
 }
-
-/* JOHANNES SIN APPLICATION
-function Application() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path={"/"} element={<FrontPage />} />
-                <Route path={"/login"} element={<Login/>} />
-                <Route path={"/login/callback"} element={<h1>Login callback</h1>} />
-                <Route path={"/profile"} element={<h1>Profile</h1>} />
-            </Routes>
-        </BrowserRouter>
-    );
-}
-*/
 
 ReactDOM.render(<Application />, document.getElementById("app"));

@@ -4,48 +4,22 @@ export function MoviesApi(mongoDatabase){
 
     const router = new Router();
     router.get("/", async (req, res) => {
-        const movies = await mongoDatabase.collection("movies")
-            .find({
-                countries: {
-                    $in: ["Ukraine"],
-                },
-                year: {
-                   $gte: 2000,
-                    //greater than or equal query
-                },
-                /* REGEX
-                title: {
-                    $regex: ".*Train.*",
-                },
-                */
-                /* EQUALS
-                title: {
-                    $eq: "Example title",
-                },
-                */
-            })
-            .sort({
-                metacritic: -1,
-            })
-            .map(({title, year, plot, genre, poster}) => ({
+        const movies = await mongoDatabase
+            .collection("movies")
+            .find({})
+            .map(({title, plot, year}) => ({
                 title,
-                year,
                 plot,
-                genre,
-                poster
+                year
             }))
-            .limit(100)
             .toArray();
         res.json( movies );
     });
 
-    router.post("/new", (req, res) => {
-        const title = req.body;
-        mongoDatabase.collection("movies").insertOne({
-            title
-        });
-        res.sendStatus(500);
+    router.post("/new", async (req, res) => {
+        const { title, year, plot } = req.body;
+        await mongoDatabase.collection("movies").insertOne({ title, year, plot });
+        res.sendStatus(204);
     });
-
     return router;
 }
