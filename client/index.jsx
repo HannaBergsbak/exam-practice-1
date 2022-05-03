@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 
-
 function FrontPage() {
     return (
         <div>
@@ -34,7 +33,6 @@ function useLoading(loadingFunction) {
     useEffect(() => {
         load();
     }, []);
-
     return { loading, error, data };
 }
 
@@ -50,7 +48,6 @@ function ListMovies() {
     const { loading, error, data } = useLoading(
         async () => fetchJSON("/api/movies")
     );
-
     if (loading){
         return <div>Loading..</div>;
     }
