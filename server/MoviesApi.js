@@ -18,7 +18,9 @@ export function MoviesApi(mongoDatabase){
 
     router.post("/new", async (req, res) => {
         const { title, year, plot } = req.body;
-        await mongoDatabase.collection("movies").insertOne({ title, year, plot });
+        await mongoDatabase
+            .collection("movies")
+            .insertOne({ title, year, plot });
         res.sendStatus(204);
     });
     return router;

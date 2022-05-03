@@ -17,7 +17,7 @@ const oauth_config = {
 
 const app = express();
 
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 async function fetchJSON(url, options) {
