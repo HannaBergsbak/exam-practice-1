@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
 
 function FrontPage() {
     return (
@@ -50,9 +50,7 @@ function useLoading(loadingFunction) {
         }
     }
 
-    useEffect(() => {
-        load();
-    }, []);
+    useEffect(() => load(), []);
     return { loading, error, data };
 }
 
@@ -120,6 +118,7 @@ function AddNewMovie() {
 
 
 function LoginCallback() {
+    const navigate = useNavigate();
     useEffect(async () => {
         const {access_token} = Object.fromEntries(
             new URLSearchParams(window.location.hash.substring(1))
@@ -133,8 +132,33 @@ function LoginCallback() {
             },
             body: JSON.stringify({access_token}),
         });
+        navigate("/");
     });
-    return <h1>Login callback</h1>;
+    return <h1>Please wait</h1>;
+}
+
+
+function Profile() {
+    const { loading, error, data } = useLoading(async () => {
+        return await fetchJSON("/api/login");
+    });
+
+    if (loading){
+        return <div>Please wait..</div>
+    }
+    if (error){
+        return <div>Error: {error.toString()}</div>
+    }
+    return (
+        <div>
+            <h1>
+                Profile for {data.name} ({data.email})
+            </h1>
+            <div>
+                <img src={data.picture} alt={"Profile picture"}/>
+            </div>
+        </div>
+    );
 }
 
 function Application() {
@@ -146,7 +170,7 @@ function Application() {
                 <Route path={"/movies/new"} element={<AddNewMovie />} />
                 <Route path={"/login"} element={<Login/>} />
                 <Route path={"/login/callback"} element={<LoginCallback/>} />
-                <Route path={"/profile"} element={<h1>Profile</h1>} />
+                <Route path={"/profile"} element={<Profile/>} />
             </Routes>
         </BrowserRouter>
     );
