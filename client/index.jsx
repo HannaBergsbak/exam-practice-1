@@ -119,6 +119,24 @@ function AddNewMovie() {
 }
 
 
+function LoginCallback() {
+    useEffect(async () => {
+        const {access_token} = Object.fromEntries(
+            new URLSearchParams(window.location.hash.substring(1))
+        );
+        console.log(access_token);
+
+        await fetch("/api/login", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({access_token}),
+        });
+    });
+    return <h1>Login callback</h1>;
+}
+
 function Application() {
     return (
         <BrowserRouter>
@@ -127,7 +145,7 @@ function Application() {
                 <Route path={"/movies"} element={<ListMovies />} />
                 <Route path={"/movies/new"} element={<AddNewMovie />} />
                 <Route path={"/login"} element={<Login/>} />
-                <Route path={"/login/callback"} element={<h1>Login callback</h1>} />
+                <Route path={"/login/callback"} element={<LoginCallback/>} />
                 <Route path={"/profile"} element={<h1>Profile</h1>} />
             </Routes>
         </BrowserRouter>
